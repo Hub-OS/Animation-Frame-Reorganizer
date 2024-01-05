@@ -38,7 +38,6 @@ export default class FrameOrganizerWorkspace {
     const resolveMousePosition = (event: MouseEvent) => {
       const boundingRect = canvas.getBoundingClientRect();
       const inverseScale = canvas.width / boundingRect.width;
-      console.log(boundingRect.width, canvas.width, inverseScale);
 
       mouseX = Math.floor((event.clientX - boundingRect.left) * inverseScale);
       mouseY = Math.floor((event.clientY - boundingRect.top) * inverseScale);
@@ -69,7 +68,8 @@ export default class FrameOrganizerWorkspace {
       this.render();
     });
 
-    this.#canvas.addEventListener("mousemove", (event) => {
+    document.body.addEventListener("mousemove", (event) => {
+      console.log("movi?");
       if (!this.#mouseDown) {
         return;
       }
@@ -104,7 +104,7 @@ export default class FrameOrganizerWorkspace {
       this.render();
     });
 
-    this.#canvas.addEventListener("mouseup", () => {
+    document.body.addEventListener("mouseup", () => {
       if (this.#mouseDown) {
         this.#mouseDown = false;
         this.#selectionRect = undefined;
