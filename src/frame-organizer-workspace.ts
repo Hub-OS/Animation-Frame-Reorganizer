@@ -291,7 +291,7 @@ export default class FrameOrganizerWorkspace {
 
     const renderRect = (rect: Rect) => {
       ctx.beginPath();
-      ctx.rect(rect.x + 0.5, rect.y + 0.5, rect.w, rect.h);
+      ctx.rect(rect.x + 0.5, rect.y + 0.5, rect.w - 1, rect.h - 1);
       ctx.fill();
       ctx.stroke();
     };
