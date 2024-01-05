@@ -1,0 +1,77 @@
+<head>
+  <title>Animation Frame Reorganizer</title>
+  <link href="styles.css" rel="stylesheet" />
+  <script type="module" src="src/index.ts" defer></script>
+  <script type="module" src="src/about.ts" defer></script>
+</head>
+
+<body>
+  <div id="toolbar">
+    <button id="about-button">About</button>
+    <button id="bake-button">Bake</button>
+  </div>
+  <div id="main">
+    <div id="input">
+      <h2>
+        <div>Workspace:</div>
+
+        <div class="error-text"></div>
+      </h2>
+      <div id="input-workspace">
+        <canvas tabindex="0"></canvas>
+      </div>
+    </div>
+
+    <div id="output">
+      <h2>Output Texture:</h2>
+      <canvas></canvas>
+
+      <h2>Output Animation:</h2>
+      <textarea></textarea>
+    </div>
+  </div>
+
+  <dialog id="about-dialog">
+    <h2 class="about-listing">
+      <u>Animation Frame Reorganizer</u>
+      <div class="links">
+        <a href="https://github.com/Hub-OS/Animation-Frame-Reorganizer/"
+          >GitHub</a
+        >
+      </div>
+    </h2>
+
+    <div class="about-section-body">
+      <p>A utility for moving animation frames within BoomSheets files.</p>
+
+      <p>
+        Not affiliated with
+        <a href="https://store.steampowered.com/app/2189000/BoomSheets/"
+          >BoomSheets</a
+        >.
+      </p>
+    </div>
+
+    <h2><u>Usage:</u></h2>
+
+    <div class="about-section-body">
+      <p>
+        Load an animation file by dropping a .animation and image file on the
+        page.
+      </p>
+
+      <div class="about-listing">WASD / Arrows: Moves selected frames.</div>
+      <div class="about-listing">
+        Shift + WASD / Arrows: Stretches the space between selected frames.
+      </div>
+      <div class="about-listing">
+        Drag from a blank space with the mouse to select multiple frames.
+      </div>
+      <div class="about-listing">
+        Drag a frame with the mouse to move selected frames.
+      </div>
+    </div>
+
+    <h2><u>Third Party Licenses:</u></h2>
+  </dialog>
+</body>
