@@ -69,7 +69,6 @@ export default class FrameOrganizerWorkspace {
     });
 
     document.body.addEventListener("mousemove", (event) => {
-      console.log("movi?");
       if (!this.#mouseDown) {
         return;
       }
