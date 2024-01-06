@@ -288,22 +288,24 @@ export default class FrameOrganizerWorkspace {
     ctx.strokeStyle = "orange";
     ctx.fillStyle = "rgba(255, 127, 0, 0.2)";
 
-    const renderRect = (rect: Rect) => {
+    const renderRect = (x: number, y: number, w: number, h: number) => {
       ctx.beginPath();
-      ctx.rect(rect.x + 0.5, rect.y + 0.5, rect.w - 1, rect.h - 1);
+      ctx.rect(x + 0.5, y + 0.5, w, h);
       ctx.fill();
       ctx.stroke();
     };
 
     for (const group of this.#frameGroups) {
       ctx.globalAlpha = this.#selectedGroups.includes(group) ? 1.0 : 0.2;
-      renderRect(group.work);
+      const { x, y, w, h } = group.work;
+      renderRect(x, y, w - 1, h - 1);
     }
 
     ctx.globalAlpha = 1.0;
 
     if (this.#selectionRect) {
-      renderRect(this.#selectionRect);
+      const { x, y, w, h } = this.#selectionRect;
+      renderRect(x, y, w, h);
     }
   }
 
