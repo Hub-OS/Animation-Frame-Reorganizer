@@ -12,6 +12,16 @@ function logError(error) {
   alert(error);
 }
 
+document.getElementById("descramble-button")!.onclick = function () {
+  if (
+    confirm(
+      "Are you sure? This will reorganize every frame and possibly create duplicate frames."
+    )
+  ) {
+    workspace.descramble();
+  }
+};
+
 document.getElementById("bake-button")!.onclick = function () {
   const canvas = document.querySelector("#output canvas") as HTMLCanvasElement;
   const textarea = document.querySelector(

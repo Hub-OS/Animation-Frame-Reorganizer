@@ -10,6 +10,7 @@ type PackedFrameGroup = {
 };
 
 export default class FrameOrganizerWorkspace {
+  #originalSheet: InputSheet = {};
   #sheet: InputSheet = {};
   #frameGroups: PackedFrameGroup[] = [];
   #selectedGroups: PackedFrameGroup[] = [];
@@ -195,7 +196,19 @@ export default class FrameOrganizerWorkspace {
   loadSheet(sheet: InputSheet) {
     const sourceImage = sheet.image!;
 
-    this.#sheet = sheet;
+    // update canvas bounds
+    this.#canvas.width = sourceImage.width;
+    this.#canvas.height = sourceImage.height;
+
+    // can't use structured clone on image element
+    sheet.image = undefined;
+
+    this.#originalSheet = sheet;
+    this.#sheet = structuredClone(sheet);
+
+    // put the image back
+    sheet.image = sourceImage;
+    this.#sheet.image = sourceImage;
 
     const groups = groupFrames(sheet.animations!);
     const packed = pack(
@@ -220,11 +233,16 @@ export default class FrameOrganizerWorkspace {
       });
     }
 
+    this.#updateFrameSource(packed.width, packed.height);
+    this.render();
+  }
+
+  #updateFrameSource(width: number, height: number) {
+    const sourceImage = this.#sheet.image!;
+
     // update canvas bounds
-    this.#canvas.width = sourceImage.width;
-    this.#canvas.height = sourceImage.height;
-    this.#frameCanvas.width = packed.width;
-    this.#frameCanvas.height = packed.height;
+    this.#frameCanvas.width = width;
+    this.#frameCanvas.height = height;
 
     // create frame source
     for (const { work, packed } of this.#frameGroups) {
@@ -248,6 +266,66 @@ export default class FrameOrganizerWorkspace {
         );
       }
     }
+  }
+
+  descramble() {
+    // can't use structured clone on image element
+    const image = this.#originalSheet.image;
+    this.#originalSheet.image = undefined;
+
+    this.#sheet = structuredClone(this.#originalSheet);
+
+    // put the image back
+    this.#sheet.image = image;
+    this.#originalSheet.image = image;
+
+    if (!this.#sheet.animations) {
+      return;
+    }
+
+    // build frame groups and move frames
+    this.#frameGroups = [];
+
+    for (const animation of this.#sheet.animations) {
+      for (const frame of animation.frames) {
+        const { x, y, w, h } = frame;
+        const work = { x, y, w, h, frames: [frame] };
+        const packed = structuredClone(work);
+        this.#frameGroups.push({ work, packed });
+      }
+    }
+
+    if (image) {
+      this.#updateFrameSource(image.width, image.height);
+    }
+
+    // move frames
+    let frameGroupIndex = 0;
+    let placeX = 1;
+    let placeY = 1;
+    let nextY = placeY;
+    let width = placeX;
+
+    for (const animation of this.#sheet.animations) {
+      for (const frame of animation.frames) {
+        const frameGroup = this.#frameGroups[frameGroupIndex];
+
+        moveGroup(frameGroup.work, placeX, placeY);
+        placeX += frame.w + 1;
+
+        nextY = Math.max(nextY, placeY + frame.h + 1);
+        width = Math.max(width, placeX);
+
+        frameGroupIndex++;
+      }
+
+      placeX = 1;
+      placeY = nextY;
+    }
+
+    // update canvas bounds
+    this.#canvas.width = width;
+    this.#canvas.height = placeY;
 
     this.render();
   }
