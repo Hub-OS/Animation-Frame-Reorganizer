@@ -1,5 +1,5 @@
 import pack from "bin-pack";
-import { BoomSheetsFrame, serializeAnimations } from "./boomsheets-animations";
+import { serializeAnimations } from "./boomsheets-animations";
 import groupFrames, { FrameGroup, moveGroup } from "./group-frames";
 import { InputSheet } from "./input-sheets";
 import { Rect, pointIntersectsRect, rectOverlaps } from "./rect";
@@ -210,7 +210,7 @@ export default class FrameOrganizerWorkspace {
     sheet.image = sourceImage;
     this.#sheet.image = sourceImage;
 
-    const groups = groupFrames(sheet.animations!);
+    const groups = groupFrames(this.#sheet.animations!);
     const packed = pack(
       groups.map((group) => ({
         width: group.w + 2,
