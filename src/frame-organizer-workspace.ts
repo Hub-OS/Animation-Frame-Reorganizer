@@ -87,8 +87,8 @@ export default class FrameOrganizerWorkspace {
         const rect = {
           x: minX,
           y: minY,
-          w: maxX - minX,
-          h: maxY - minY,
+          w: maxX - minX + 1,
+          h: maxY - minY + 1,
         };
         this.#selectionRect = rect;
 
@@ -383,7 +383,7 @@ export default class FrameOrganizerWorkspace {
 
     if (this.#selectionRect) {
       const { x, y, w, h } = this.#selectionRect;
-      renderRect(x, y, w, h);
+      renderRect(x, y, w - 1, h - 1);
     }
   }
 
