@@ -8,7 +8,7 @@
     "start": "parcel index.html --dist-dir _dev",
     "clean": "rimraf dist",
     "build": "npm run clean && npm run licenses && parcel build --public-url ./ index.html",
-    "deploy": "npm run build && git subtree push --prefix dist origin gh-pages",
+    "deploy": "git subtree push --prefix dist origin gh-pages",
     "licenses": "license-ripper -o _licenses.json --include-homepage"
   },
   "devDependencies": {
