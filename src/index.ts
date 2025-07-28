@@ -12,13 +12,13 @@ function logError(error) {
   alert(error);
 }
 
-document.getElementById("descramble-button")!.onclick = function () {
+document.getElementById("unpack-button")!.onclick = function () {
   if (
     confirm(
       "Are you sure? This will reorganize every frame and possibly create duplicate frames."
     )
   ) {
-    workspace.descramble();
+    workspace.unpack();
   }
 };
 

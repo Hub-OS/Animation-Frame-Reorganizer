@@ -268,7 +268,7 @@ export default class FrameOrganizerWorkspace {
     }
   }
 
-  descramble() {
+  unpack() {
     // can't use structured clone on image element
     const image = this.#originalSheet.image;
     this.#originalSheet.image = undefined;
