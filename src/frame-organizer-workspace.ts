@@ -363,8 +363,8 @@ export default class FrameOrganizerWorkspace {
   #renderOutlines() {
     const ctx = this.#ctx;
 
-    ctx.strokeStyle = "orange";
-    ctx.fillStyle = "rgba(255, 127, 0, 0.2)";
+    ctx.strokeStyle = "lime";
+    ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
 
     const renderRect = (x: number, y: number, w: number, h: number) => {
       ctx.beginPath();
