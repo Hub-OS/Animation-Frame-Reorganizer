@@ -1,4 +1,4 @@
-import { parseAnimationsText } from "./boomsheets-animations";
+import { parseSheet } from "./boomsheets-animations";
 import { loadImageFile, loadTextFile } from "./file-loading";
 import FrameOrganizerWorkspace from "./frame-organizer-workspace";
 import { InputSheet, resolveSingleErrorMessage } from "./input-sheets";
@@ -83,11 +83,14 @@ async function loadFiles(files: File[]) {
         console.error(error);
         pendingSheet.imageError = error!.toString();
       }
-    } else if (file.name.endsWith(".animation")) {
+    } else if (
+      file.name.endsWith(".animation") ||
+      file.name.endsWith(".anim")
+    ) {
       try {
         const text = await loadTextFile(file);
 
-        pendingSheet.animations = parseAnimationsText(text);
+        pendingSheet.boomsheet = parseSheet(text);
         pendingSheet.animationError = undefined;
       } catch (error) {
         console.error(error);

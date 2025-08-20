@@ -1,5 +1,5 @@
 import pack from "bin-pack";
-import { serializeAnimations } from "./boomsheets-animations";
+import { serializeAnimations as serializeSheet } from "./boomsheets-animations";
 import groupFrames, { FrameGroup, moveGroup } from "./group-frames";
 import { InputSheet } from "./input-sheets";
 import { Rect, pointIntersectsRect, rectOverlaps } from "./rect";
@@ -210,7 +210,7 @@ export default class FrameOrganizerWorkspace {
     sheet.image = sourceImage;
     this.#sheet.image = sourceImage;
 
-    const groups = groupFrames(this.#sheet.animations!);
+    const groups = groupFrames(this.#sheet.boomsheet!.animations);
     const packed = pack(
       groups.map((group) => ({
         width: group.w + 2,
@@ -279,14 +279,14 @@ export default class FrameOrganizerWorkspace {
     this.#sheet.image = image;
     this.#originalSheet.image = image;
 
-    if (!this.#sheet.animations) {
+    if (!this.#sheet.boomsheet) {
       return;
     }
 
     // build frame groups and move frames
     this.#frameGroups = [];
 
-    for (const animation of this.#sheet.animations) {
+    for (const animation of this.#sheet.boomsheet.animations) {
       for (const frame of animation.frames) {
         const { x, y, w, h } = frame;
         const work = { x, y, w, h, frames: [frame] };
@@ -306,7 +306,7 @@ export default class FrameOrganizerWorkspace {
     let nextY = placeY;
     let width = placeX;
 
-    for (const animation of this.#sheet.animations) {
+    for (const animation of this.#sheet.boomsheet.animations) {
       for (const frame of animation.frames) {
         const frameGroup = this.#frameGroups[frameGroupIndex];
 
@@ -395,8 +395,8 @@ export default class FrameOrganizerWorkspace {
   }
 
   serializeSheet(): string {
-    if (this.#sheet.animations) {
-      return serializeAnimations(this.#sheet.animations);
+    if (this.#sheet.boomsheet) {
+      return serializeSheet(this.#sheet.boomsheet);
     } else {
       return "";
     }

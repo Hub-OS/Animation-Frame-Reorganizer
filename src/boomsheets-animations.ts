@@ -1,5 +1,10 @@
 import { double as quote, unquote } from "quote-unquote";
 
+export type BoomSheet = {
+  version: "legacy" | "modern";
+  animations: BoomSheetsAnimation[];
+};
+
 export type BoomSheetsPoint = {
   label: string;
   x: number;
@@ -144,8 +149,12 @@ function parseAttributes(line: string, lineNumber: number): Attributes {
   return attributes;
 }
 
-export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
+export function parseSheet(text: string): BoomSheet {
   const animations: BoomSheetsAnimation[] = [];
+  const boomsheet: BoomSheet = {
+    version: "modern",
+    animations,
+  };
 
   let lineNumber = 0;
   let currentAnimation: BoomSheetsAnimation | undefined;
@@ -158,6 +167,7 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
     if (
       line == "" ||
       line.startsWith("#") ||
+      line.startsWith("!") ||
       line.startsWith("imagePath") ||
       line.startsWith("version")
     ) {
@@ -165,7 +175,17 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
       continue;
     }
 
-    if (line.startsWith("animation ")) {
+    if (line.startsWith("anim ")) {
+      const animation: BoomSheetsAnimation = {
+        state: line.slice("anim ".length).trim(),
+        frames: [],
+      };
+
+      animations.push(animation);
+      currentAnimation = animation;
+    } else if (line.startsWith("animation ")) {
+      boomsheet.version = "legacy";
+
       const attributes = parseAttributes(line, lineNumber);
 
       const animation: BoomSheetsAnimation = {
@@ -199,7 +219,7 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
         originy: parseFloat(attributes.originy) || 0,
         flipx: parseInt(attributes.flipx) == 1,
         flipy: parseInt(attributes.flipy) == 1,
-        duration: attributes.duration || "",
+        duration: attributes.duration || attributes.dur || "",
         points: [],
       };
 
@@ -232,41 +252,59 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
     }
   }
 
-  return animations;
+  return boomsheet;
 }
+
+type SerializeObjectOptions = {
+  quoteAllValues?: boolean;
+  renamedKeys?: { [key: string]: string };
+};
 
 function serializeObject(
   name: string,
   object: Object,
-  options = { quoteAllValues: true }
+  options: SerializeObjectOptions = { quoteAllValues: true }
 ): string {
   const text: string[] = [name];
 
   for (const key in object) {
     const value = object[key];
+    let renamedKey = key;
+
+    if (options.renamedKeys) {
+      renamedKey = options.renamedKeys[key] || key;
+    }
 
     switch (typeof value) {
       case "string":
         if (value != "") {
           text.push(" ");
-          text.push(key);
+          text.push(renamedKey);
           text.push("=");
-          text.push(quote(value));
+          if (
+            options.quoteAllValues ||
+            value.includes('"') ||
+            value.includes(" ")
+          ) {
+            text.push(quote(value));
+          } else {
+            text.push(value);
+          }
         }
         break;
       case "number":
         if (value != 0) {
           if (options.quoteAllValues) {
-            text.push(` ${key}="${value}"`);
+            text.push(` ${renamedKey}="${value}"`);
           } else {
-            text.push(` ${key}=${value}`);
+            text.push(` ${renamedKey}=${value}`);
           }
         }
         break;
       case "boolean":
         if (value == true) {
           text.push(" ");
-          text.push(key);
+          text.push(renamedKey);
 
           if (options.quoteAllValues) {
             text.push('="1"');
@@ -281,24 +319,37 @@ function serializeObject(
           break;
         }
       default:
-        throw new Error(`Unexpected ${typeof value} for ${key}`);
+        throw new Error(`Unexpected ${typeof value} for ${renamedKey}`);
     }
   }
 
   return text.join("");
 }
 
-export function serializeAnimations(animations: BoomSheetsAnimation[]): string {
+export function serializeAnimations(boomsheet: BoomSheet): string {
   const lines: string[] = [];
 
-  for (const animation of animations) {
-    lines.push(serializeObject("animation", animation));
+  const options: SerializeObjectOptions = {
+    quoteAllValues: true,
+  };
+
+  if (boomsheet.version == "modern") {
+    options.quoteAllValues = false;
+    options.renamedKeys = { duration: "dur" };
+  }
+
+  for (const animation of boomsheet.animations) {
+    if (boomsheet.version == "modern") {
+      lines.push("anim " + animation.state);
+    } else {
+      lines.push(serializeObject("animation", animation, options));
+    }
 
     for (const frame of animation.frames) {
-      lines.push(serializeObject("frame", frame));
+      lines.push(serializeObject("frame", frame, options));
 
       for (const point of frame.points) {
-        lines.push(serializeObject("point", point));
+        lines.push(serializeObject("point", point, options));
       }
     }
 
