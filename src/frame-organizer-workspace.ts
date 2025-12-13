@@ -1,5 +1,5 @@
 import pack from "bin-pack";
-import { serializeAnimations as serializeSheet } from "./boomsheets-animations";
+import { serializeSheet } from "./boomsheets-animations";
 import groupFrames, { FrameGroup, moveGroup } from "./group-frames";
 import { InputSheet } from "./input-sheets";
 import { Rect, pointIntersectsRect, rectOverlaps } from "./rect";
