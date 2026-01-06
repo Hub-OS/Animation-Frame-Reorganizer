@@ -1,4 +1,4 @@
-import { parseSheet } from "./boomsheets-animations";
+import { parseAsepriteSheet, parseSheet } from "./boomsheets-animations";
 import { loadImageFile, loadTextFile } from "./file-loading";
 import FrameOrganizerWorkspace from "./frame-organizer-workspace";
 import { InputSheet, resolveSingleErrorMessage } from "./input-sheets";
@@ -7,7 +7,7 @@ const canvas = document.querySelector("#input canvas") as HTMLCanvasElement;
 const workspace = new FrameOrganizerWorkspace(canvas);
 const pendingSheet: InputSheet = {};
 
-function logError(error) {
+function logError(error: any) {
   console.error(error);
   alert(error);
 }
@@ -92,6 +92,36 @@ async function loadFiles(files: File[]) {
 
         pendingSheet.boomsheet = parseSheet(text);
         pendingSheet.animationError = undefined;
+      } catch (error) {
+        console.error(error);
+        pendingSheet.animationError = error!.toString();
+      }
+    } else if (file.name.endsWith(".json")) {
+      try {
+        const text = await loadTextFile(file);
+        const json = JSON.parse(text);
+
+        if (typeof json == "object" && Array.isArray(json.frames)) {
+          const originString = prompt("Origin:", "0,0") ?? "0,0";
+
+          let [originx, originy] = originString
+            .split(",")
+            .map((s) => parseFloat(s));
+
+          originx ??= 0;
+          originy ??= 0;
+
+          pendingSheet.boomsheet = parseAsepriteSheet(json);
+
+          for (const animation of pendingSheet.boomsheet.animations) {
+            for (const frame of animation.frames) {
+              frame.originx += originx;
+              frame.originy += originy;
+            }
+          }
+
+          pendingSheet.animationError = undefined;
+        }
       } catch (error) {
         console.error(error);
         pendingSheet.animationError = error!.toString();

@@ -313,6 +313,83 @@ export function parseSheet(text: string): BoomSheet {
   return boomsheet;
 }
 
+type AsepriteFrame = {
+  frame: { x: number; y: number; w: number; h: number };
+  rotated: boolean;
+  trimmed?: boolean;
+  spriteSourceSize?: { x: number; y: number; w: number; h: number };
+  sourceSize?: { w: number; h: number };
+  duration: number; // in milliseconds
+};
+
+type AsepriteFrameTag = {
+  name: string;
+  from: number;
+  to: number;
+  direction: string;
+};
+
+export function parseAsepriteSheet(json: { [key: string]: any }): BoomSheet {
+  if (!Array.isArray(json.frames)) {
+    throw "Only Array format is supported for Aseprite sheets";
+  }
+
+  const animations: BoomSheetsAnimation[] = [];
+  const boomsheet: BoomSheet = {
+    version: "modern",
+    animations,
+  };
+
+  let frameTags = json.meta.frameTags as AsepriteFrameTag[];
+
+  if (!Array.isArray(frameTags) || frameTags.length == 0) {
+    frameTags = [
+      {
+        name: "DEFAULT",
+        from: 0,
+        to: Math.max(json.frames.length - 1, 0),
+        direction: "forward",
+      },
+    ];
+  }
+
+  const asepriteFrames = json.frames as AsepriteFrame[];
+
+  for (const frameTag of frameTags) {
+    const frames: BoomSheetsFrame[] = [];
+
+    for (let i = frameTag.from; i <= frameTag.to; i++) {
+      const aseFrame = asepriteFrames[i];
+
+      const frame: BoomSheetsFrame = {
+        x: aseFrame.frame.x,
+        y: aseFrame.frame.y,
+        w: aseFrame.frame.w,
+        h: aseFrame.frame.h,
+        originx: -(aseFrame.spriteSourceSize?.x ?? 0),
+        originy: -(aseFrame.spriteSourceSize?.y ?? 0),
+        flipx: false,
+        flipy: false,
+        duration: (aseFrame.duration / 1000).toString(),
+        points: [],
+      };
+
+      frames.push(frame);
+    }
+
+    if (frameTag.direction.toLowerCase().includes("reverse")) {
+      frames.reverse();
+    }
+
+    animations.push({
+      state: frameTag.name,
+      frames,
+    });
+  }
+
+  return boomsheet;
+}
+
 type SerializeObjectOptions = {
   quoteAllValues?: boolean;
   renamedKeys?: { [key: string]: string };
