@@ -156,3 +156,31 @@ h2 .error-text {
   font-size: inherit;
   font-weight: inherit;
 }
+
+input[type="radio"] {
+  user-select: none;
+  cursor: pointer;
+}
+
+#output h2 {
+  flex: 1;
+}
+
+fieldset {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+#output fieldset {
+  user-select: none;
+}
+
+#output div {
+  display: flex;
+  flex-direction: row;
+}
+
+#output fieldset label {
+  cursor: pointer;
+}

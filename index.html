@@ -24,11 +24,37 @@
     </div>
 
     <div id="output">
-      <h2>Output Texture:</h2>
+      <div>
+        <h2>Output Texture:</h2>
+      </div>
+
       <canvas></canvas>
 
-      <h2>Output Animation:</h2>
-      <textarea></textarea>
+      <div>
+        <h2>Output Animation:</h2>
+
+        <fieldset>
+          <input
+            type="radio"
+            id="animation-output-option"
+            name="animation-output-options"
+            value="animation"
+            checked
+          />
+          <label for="animation-output-option">Animation</label>
+
+          <input
+            type="radio"
+            id="points-output-option"
+            name="animation-output-options"
+            value="points"
+          />
+          <label for="points-output-option">Points</label>
+        </fieldset>
+      </div>
+
+      <textarea id="animation-output"></textarea>
+      <textarea id="points-output"></textarea>
     </div>
   </div>
 

@@ -1,5 +1,5 @@
 import pack from "bin-pack";
-import { serializeSheet } from "./boomsheets-animations";
+import { BoomSheet, serializeSheet } from "./boomsheets-animations";
 import groupFrames, { FrameGroup, moveGroup } from "./group-frames";
 import { InputSheet } from "./input-sheets";
 import { Rect, pointIntersectsRect, rectOverlaps } from "./rect";
@@ -394,11 +394,7 @@ export default class FrameOrganizerWorkspace {
     this.#renderFrames(ctx);
   }
 
-  serializeSheet(): string {
-    if (this.#sheet.boomsheet) {
-      return serializeSheet(this.#sheet.boomsheet);
-    } else {
-      return "";
-    }
+  boomsheet(): BoomSheet | undefined {
+    return this.#sheet.boomsheet;
   }
 }

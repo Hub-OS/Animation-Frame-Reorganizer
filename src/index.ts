@@ -1,4 +1,9 @@
-import { parseAsepriteSheet, parseSheet } from "./boomsheets-animations";
+import {
+  parseAsepriteSheet,
+  parseSheet,
+  serializePoints,
+  serializeSheet,
+} from "./boomsheets-animations";
 import { loadImageFile, loadTextFile } from "./file-loading";
 import FrameOrganizerWorkspace from "./frame-organizer-workspace";
 import { InputSheet, resolveSingleErrorMessage } from "./input-sheets";
@@ -6,6 +11,13 @@ import { InputSheet, resolveSingleErrorMessage } from "./input-sheets";
 const canvas = document.querySelector("#input canvas") as HTMLCanvasElement;
 const workspace = new FrameOrganizerWorkspace(canvas);
 const pendingSheet: InputSheet = {};
+
+const animationOutputElement = document.getElementById(
+  "animation-output"
+) as HTMLTextAreaElement;
+const pointsOutputElement = document.getElementById(
+  "points-output"
+) as HTMLTextAreaElement;
 
 function logError(error: any) {
   console.error(error);
@@ -24,13 +36,20 @@ document.getElementById("unpack-button")!.onclick = function () {
 
 document.getElementById("bake-button")!.onclick = function () {
   const canvas = document.querySelector("#output canvas") as HTMLCanvasElement;
-  const textarea = document.querySelector(
-    "#output textarea"
-  ) as HTMLTextAreaElement;
+  const textarea = document.querySelector("#output textarea");
 
   try {
     workspace.renderOutput(canvas);
-    textarea.value = workspace.serializeSheet();
+
+    const boomsheet = workspace.boomsheet();
+
+    if (boomsheet) {
+      animationOutputElement.value = serializeSheet(boomsheet);
+      pointsOutputElement.value = serializePoints(boomsheet);
+    } else {
+      animationOutputElement.value = "";
+      pointsOutputElement.value = "";
+    }
   } catch (error) {
     logError(error);
   }
@@ -129,3 +148,25 @@ async function loadFiles(files: File[]) {
     }
   }
 }
+
+document
+  .querySelectorAll("input[name='animation-output-options']")
+  .forEach((input) =>
+    input.addEventListener("change", updateVisibleAnimationOutput)
+  );
+
+function updateVisibleAnimationOutput() {
+  const input = document.querySelector(
+    "input[name='animation-output-options']:checked"
+  )! as HTMLInputElement;
+
+  const textboxes = [animationOutputElement, pointsOutputElement];
+
+  const visibleId = input.value + "-output";
+
+  for (const textbox of textboxes) {
+    textbox.style.display = textbox.id == visibleId ? "" : "none";
+  }
+}
+
+updateVisibleAnimationOutput();

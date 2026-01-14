@@ -493,3 +493,66 @@ export function serializeSheet(boomsheet: BoomSheet): string {
 
   return lines.join("\n");
 }
+
+export function serializePoints(boomsheet: BoomSheet): string {
+  const lines: string[] = [];
+
+  const options: SerializeObjectOptions = {
+    quoteAllValues: true,
+  };
+
+  if (boomsheet.version == "modern") {
+    options.quoteAllValues = false;
+    options.renamedKeys = { duration: "dur" };
+  }
+
+  for (const animation of boomsheet.animations) {
+    let pendingLines = [];
+    let pushedAnimation = false;
+
+    if (boomsheet.version == "modern") {
+      pendingLines.push("anim " + animation.state);
+    } else {
+      pendingLines.push(serializeObject("animation", animation, options));
+    }
+
+    for (const frame of animation.frames) {
+      const simplifiedFrame: BoomSheetsFrame = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        originx: 0,
+        originy: 0,
+        flipx: false,
+        flipy: false,
+        duration: frame.duration,
+        points: [],
+      };
+
+      pendingLines.push(serializeObject("frame", simplifiedFrame, options));
+
+      if (frame.points && frame.points.length > 0) {
+        lines.push(...pendingLines);
+        pendingLines = [];
+        pushedAnimation = true;
+
+        for (const point of frame.points) {
+          const shiftedPoint: BoomSheetsPoint = {
+            label: point.label,
+            x: point.x - frame.originx,
+            y: point.y - frame.originy,
+          };
+
+          lines.push(serializeObject("point", shiftedPoint, options));
+        }
+      }
+    }
+
+    if (pushedAnimation) {
+      lines.push("");
+    }
+  }
+
+  return lines.join("\n");
+}
